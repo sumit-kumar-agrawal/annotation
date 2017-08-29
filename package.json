@@ -1,0 +1,11 @@
+{
+    "name": "annotations_poc",
+    "main": "index.html",
+    "window": {
+        "width": 900,
+        "height": 600
+    },
+    "dependencies": {
+        "fabric": "^2.0.0-beta.6"
+    }
+}
