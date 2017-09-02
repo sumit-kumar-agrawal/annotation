@@ -6,6 +6,7 @@
         "height": 600
     },
     "dependencies": {
+        "empty-dir": "^0.2.1",
         "fabric": "^2.0.0-beta.6"
     }
 }

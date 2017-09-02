@@ -1,6 +1,10 @@
 class MetaInfo{
-    constructor(){
-
+    constructor(curr_date_with_time, curr_date_and_time, curr_date_utc, user){
+        this.curr_date_and_time = curr_date_and_time;
+        this.curr_date_utc = curr_date_utc;
+        this.curr_date_with_time = curr_date_with_time;
+        
+        this.user = user;
     }
 
     isEmpty(obj) {
@@ -16,43 +20,40 @@ class MetaInfo{
             size: "",
             state: "",
             extension: "",
-            created_by: "",
-            modified_by: "",
-            created_at: "",
-            created_at_utc: "",
-            modified_at: "",
-            modified_at_utc: "",
+            path: "",
             
         };
+        common_prop = Object.assign(common_prop, thsi.dateCreatedMetaInfo(), this.dateModifyMetaInfo());
         return common_prop;
     }
 
-    imageWidtHeightInfo(){
+    imageWidtHeightInfo(arg_obj){
         let image_prop = {dimension:{
-            width: "",
-            height: "",
+            width: (arg_obj.width == undefined) ? "" : arg_obj.width,
+            height: (arg_obj.height == undefined) ? "" : arg_obj.height,
         }};
         return image_prop;
     }
 
-    compareImgMetaInfo(){
+    compareImgMetaInfo(arg_obj){
+        
         let compare_image_prop = {compare_img:{
-                id: "",
-                name: "",
-                type: "",
-                size: "",
-                width: "",
-                height: "",
-                extension: ""
+                id: (arg_obj.id == undefined) ? "" : arg_obj.id,
+                name: (arg_obj.name == undefined) ? "" : arg_obj.name,
+                type: (arg_obj.type == undefined) ? "" : arg_obj.type,
+                size: (arg_obj.size == undefined) ? "" : arg_obj.size,
+                width: (arg_obj.width == undefined) ? "" : arg_obj.width,
+                height: (arg_obj.height == undefined) ? "" : arg_obj.height,
+                extension: (arg_obj.extension == undefined) ? "" : arg_obj.extension
         }};
         return compare_image_prop;
     }
 
-    uploadMetaInfo(){
+    uploadMetaInfo(arg_obj){
         let upload_data = {upload_info: {
-                uploaded_on: "",
-                uploaded_time: "",
-                status: ""
+                uploaded_on: (arg_obj.uploaded_on == undefined) ? "" : arg_obj.uploaded_on,
+                uploaded_time: (arg_obj.uploaded_time == undefined) ? "" : arg_obj.uploaded_time,
+                status: (arg_obj.status == undefined) ? "" : arg_obj.status,
             }};
          return upload_data;   
             
@@ -63,62 +64,50 @@ class MetaInfo{
         return img_whole_meta;
     }
 
-    getCommonMetaForWrite(arg_obj){
-        let img_data = arg_obj["img_data"];
-        if (img_data["id"] == '' && img_data["id"] != undefined){
-            img_data["id"] = arg_obj["asset_file_prefix"] + arg_obj["curr_date_time"];
-        }
-
-        if (img_data["extension"] == '' && img_data["extension"] != undefined){
-            img_data["extension"] = arg_obj["extension"];
-        }
-
-        if (img_data["name"] == '' && img_data["name"] != undefined){
-            img_data["name"] = arg_obj["asset_file_prefix"] + arg_obj["curr_date_time"] + "." + img_data["extension"];
-        }
-        
-        if (img_data["description"] == '' && img_data["description"] != undefined){
-            img_data["description"] = '';
-        }
-
-        if (img_data["type"] == '' && img_data["type"] != undefined){
-            img_data["type"] = arg_obj["type"];
-        }
-
-        if (img_data["size"] == '' && img_data["size"] != undefined){
-            img_data["size"] = '';
-        }
-
-        if (img_data["state"] == '' && img_data["state"] != undefined){
-            img_data["state"] = '';
-        }
-        
-        if (img_data["created_by"] == '' && img_data["created_by"] != undefined){
-            img_data["created_by"] = arg_obj["user"];
-        }
-
-        if (img_data["modified_by"] == '' && img_data["modified_by"] != undefined){
-            img_data["modified_by"] = arg_obj["user"];
-        }
-
-        if (img_data["created_at"] == '' && img_data["created_at"] != undefined){
-            img_data["created_at"] = arg_obj["created_at"];
-        }
-
-        if (img_data["modified_at"] == '' && img_data["modified_at"] != undefined){
-            img_data["modified_at"] = arg_obj["created_at"];
-        }
-
-        if (img_data["created_at_utc"] == '' && img_data["created_at_utc"] != undefined){
-            img_data["created_at_utc"] = arg_obj["created_at"];
-        }
-
-        if (img_data["modified_at_utc"] == '' && img_data["modified_at_utc"] != undefined){
-            img_data["modified_at_utc"] = arg_obj["created_at"];
-        }
-        return img_data;
-
+    dateCreatedMetaInfo(){
+        return {created_by: this.user,created_at: this.curr_date_and_time, created_at_utc: this.curr_date_utc}
+    }
+    dateModifyMetaInfo(){
+        return {modified_at: this.curr_date_and_time, modified_at_utc: this.curr_date_utc, modified_by: this.user}
     }
 
+    getWriteMetaInfo(){
+        return {
+            name: "",
+            description: "",
+            type: "",
+            size: "",
+            state: "",
+            extension: ""
+        }
+    }
+
+    createMetaId(arg_obj){
+        return {id: arg_obj.asset_file_prefix + this.curr_date_with_time};
+    }
+
+    writeMetaInfo(arg_obj){
+        let comm_meta_data = arg_obj.common_meta_data;
+        let write_meta_info = {
+                name: (comm_meta_data.name == undefined) ? "" : comm_meta_data.name,
+                description: (comm_meta_data.description == undefined) ? "" : comm_meta_data.description,
+                type: (comm_meta_data.type == undefined) ? "" : comm_meta_data.type,
+                size: (comm_meta_data.size == undefined) ? "" : comm_meta_data.size,
+                state: (comm_meta_data.state == undefined) ? "" : comm_meta_data.state,
+                extension: (comm_meta_data.extension == undefined) ? "" : comm_meta_data.extensionextension,
+                path: (arg_obj.path == undefined) ? "" : arg_obj.path,
+        }
+        write_meta_info = Object.assign(this.createMetaId(arg_obj), write_meta_info,this.dateCreatedMetaInfo(),this.dateModifyMetaInfo());
+        return write_meta_info;
+    }
+
+    updateMetaInfo(arg_obj){
+        return {
+                state: (arg_obj.state == undefined) ? "" : arg_obj.state, 
+                name: (arg_obj.name == undefined) ? "" : arg_obj.name, 
+                description: (arg_obj.description == undefined) ? "" : arg_obj.description, 
+        }
+    }
+   
 }
 module.exports = MetaInfo;
