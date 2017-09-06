@@ -42,6 +42,71 @@ annotate.ready = function () {
 		this.updateModifications();
 	});
 
+
+	this.canvas.on('mouse:down', o => {
+		// console.log('mouse down...');
+		if (this.canvas.isDrawingMode) {
+			this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
+			this.canvas.freeDrawingBrush.color = annotate.properties.strokeColor;
+			this.canvas.freeDrawingBrush.width = parseInt(annotate.properties.strokeWidth, 10) || 1;
+			return;
+		}
+		isDown = true;
+		//this.setObjectProperties();
+		var pointer = this.canvas.getPointer(o.e);
+		let shapeObj = this.getShapeObj();
+		if (shapeObj != 'undefined') {
+			shapeObj.init({ pointer: pointer });
+			shape = shapeObj.addShape();
+			this.addShapeInCanvas();
+			// this.updateModifications(true);
+
+		} else {
+			// console.log('Error: shape object could not found.');
+		}
+
+	});
+
+	this.canvas.on('mouse:move', o => {
+		// console.log('mouse move...');
+		if (!isDown || this.canvas.isDrawingMode || !moveMode) return;
+		//this.setObjectProperties();
+		let pointer = this.canvas.getPointer(o.e);
+		let shapeObj = this.getShapeObj();
+		if (shapeObj != 'undefined') {
+			shapeObj.setCordinate(pointer, this.canvas);
+			this.canvas.renderAll();
+		} else {
+			// console.log('Error: shape object could not found.');
+		}
+	});
+
+	this.canvas.on('mouse:up', o => {
+		// console.log('mouse up...');
+		isDown = false;
+		annotate.addShapeInCanvas();
+		this.updateModifications();
+
+	});
+
+	this.canvas.on('object:selected', function () {
+		moveMode = false;
+	});
+
+	this.canvas.on('selection:cleared', function () {
+		moveMode = true;
+	});
+
+	this.canvas.on('mouse:over', (opts) => {
+		var selectedObj = opts.target;
+		if (!selectedObj || selectedObj.type == 'image') return;
+		selectedObj.selectable = true;
+	});
+
+	this.canvas.observe("object:moving", annotate.checkmove);
+	//this.canvas.observe("object:scaling", annotate.checkscale);
+
+
 	for (i = 2; i <= maxStrokeWidth; i++) {
 		$('#stroke-width-selector').append($("<option></option>").attr("value", i).text(i));
 	}
@@ -70,61 +135,6 @@ annotate.drawShape = function () {
 		this.redo();
 	} else {
 		this.checkDrawingMode();
-		this.canvas.on('mouse:down', o => {
-			if (this.canvas.isDrawingMode) return;
-			isDown = true;
-			//this.setObjectProperties();
-			var pointer = this.canvas.getPointer(o.e);
-			let shapeObj = this.getShapeObj();
-			if (shapeObj != 'undefined') {
-				shapeObj.init({ pointer: pointer });
-				shape = shapeObj.addShape();
-				this.addShapeInCanvas();
-				this.updateModifications(true);
-
-			} else {
-				console.log('Error: shape object could not found.');
-			}
-
-		});
-
-		this.canvas.on('mouse:move', o => {
-			if (!isDown || this.canvas.isDrawingMode || !moveMode) return;
-			//this.setObjectProperties();
-			let pointer = this.canvas.getPointer(o.e);
-			let shapeObj = this.getShapeObj();
-			if (shapeObj != 'undefined') {
-				shapeObj.setCordinate(pointer, this.canvas);
-				this.canvas.renderAll();
-			} else {
-				console.log('Error: shape object could not found.');
-			}
-		});
-
-		this.canvas.on('mouse:up', o => {
-			isDown = false;
-			if (this.canvas.isDrawingMode) return;
-			annotate.addShapeInCanvas();
-
-		});
-
-		this.canvas.on('object:selected', function () {
-			moveMode = false;
-		});
-
-		this.canvas.on('selection:cleared', function () {
-			moveMode = true;
-		});
-
-		this.canvas.on('mouse:over', (opts) => {
-			var selectedObj = opts.target;
-			if (!selectedObj || selectedObj.type == 'image') return;
-			selectedObj.selectable = true;
-		});
-
-		this.canvas.observe("object:moving", annotate.checkmove);
-		//this.canvas.observe("object:scaling", annotate.checkscale);
-
 	}
 };
 
@@ -136,8 +146,8 @@ annotate.moveObject = function () {
 
 annotate.setObjectProperties = function () {
 	this.properties.selectable = true;
-	this.properties.stroke = 
-	this.resetShapePopertise(this.properties);
+	this.properties.stroke =
+		this.resetShapePopertise(this.properties);
 }
 annotate.getShapeObj = function () {
 	var shapeObj;
@@ -161,6 +171,8 @@ annotate.getShapeObj = function () {
 };
 
 annotate.addShapeInCanvas = function () {
+	if (this.canvas.isDrawingMode) return;
+
 	if (this.current == 'arrow') {
 		this.canvas.add(shape[0], shape[1]);
 	} else {
@@ -171,6 +183,10 @@ annotate.addShapeInCanvas = function () {
 annotate.checkDrawingMode = function () {
 	if (this.current == 'pencil') {
 		this.canvas.isDrawingMode = true;
+		///////////////////
+		this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
+		this.canvas.freeDrawingBrush.color = annotate.properties.strokeColor;
+		this.canvas.freeDrawingBrush.width = parseInt(annotate.properties.strokeWidth, 10) || 1;
 	} else {
 		this.canvas.isDrawingMode = false;
 	}
@@ -189,7 +205,8 @@ annotate.resetShapePopertise = function (propObj) {
 }
 
 annotate.updateModifications = function () {
-	redo = [];
+	// redo = [];
+	// console.log('update modification')
 	$('#redo').prop('disabled', true);
 	// initial call won't have a state
 	if (state) {
