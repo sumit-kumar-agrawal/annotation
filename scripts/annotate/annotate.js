@@ -133,6 +133,7 @@ annotate.moveObject = function () {
 
 annotate.setObjectProperties = function () {
 	this.properties.selectable = true;
+	this.properties.stroke = 
 	this.resetShapePopertise(this.properties);
 }
 annotate.getShapeObj = function () {

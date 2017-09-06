@@ -38,13 +38,14 @@ class MetaInfo{
     compareImgMetaInfo(arg_obj){
         
         let compare_image_prop = {compare_img:{
-                id: (arg_obj.id == undefined) ? "" : arg_obj.id,
-                name: (arg_obj.name == undefined) ? "" : arg_obj.name,
-                type: (arg_obj.type == undefined) ? "" : arg_obj.type,
-                size: (arg_obj.size == undefined) ? "" : arg_obj.size,
-                width: (arg_obj.width == undefined) ? "" : arg_obj.width,
-                height: (arg_obj.height == undefined) ? "" : arg_obj.height,
-                extension: (arg_obj.extension == undefined) ? "" : arg_obj.extension
+                id: (arg_obj.compare_image_data.id == undefined) ? "" : arg_obj.compare_image_data.id,
+                name: (arg_obj.compare_image_data.name == undefined) ? "" : arg_obj.compare_image_data.name,
+                type: (arg_obj.compare_image_data.type == undefined) ? "" : arg_obj.compare_image_data.type,
+                size: (arg_obj.compare_image_data.size == undefined) ? "" : arg_obj.compare_image_data.size,
+                width: (arg_obj.compare_image_data.width == undefined) ? "" : arg_obj.compare_image_data.width,
+                height: (arg_obj.compare_image_data.height == undefined) ? "" : arg_obj.compare_image_data.height,
+                extension: (arg_obj.compare_image_data.extension == undefined) ? "" : arg_obj.compare_image_data.extension,
+                path: (arg_obj.compare_image_data.path == undefined) ? "" : arg_obj.compare_image_data.path
         }};
         return compare_image_prop;
     }

@@ -1,3 +1,4 @@
+var probe = require('probe-image-size');
 const osUtils = require('./../utils/OSUtils');
 const dateUtils = require('../utils/DateUtils');
 const emptyDir = require('empty-dir');
@@ -7,10 +8,11 @@ const objDateUtils = new dateUtils();
 
 class UserDataModel{
 
-	constructor(dir_name = 'user_data', curr_date = objDateUtils.ddmmyyyy(), curr_time = objDateUtils.hhmmss()){
+	constructor(dir_name = 'user_data', tmp_dir_name = 'tmp', curr_date = objDateUtils.ddmmyyyy(), curr_time = objDateUtils.hhmmss()){
 		this.fs = require('fs');
 		this.delimiter =  objOSUtil.delimiter();
 		this.user_data_dir_name = dir_name;
+		this.tmp_dir_name = tmp_dir_name;
 		this.curr_date = curr_date;
 		this.curr_date_with_time = curr_date + curr_time;
 		this.curr_date_and_time =  objDateUtils.yyyy_mm_dd_hh_mm_ss();
@@ -25,6 +27,15 @@ class UserDataModel{
 	getUserDataDirPath(){
 		return "." + this.delimiter + this.	getUserDataDirName();
 	}	
+
+	getTmpDirName(){
+		return this.tmp_dir_name;
+	}
+
+	getTmpDirPath(){
+		return "." + this.delimiter + this.	getTmpDirName();
+	}	
+
 
 	createUserDataFolder(){
 		let path = "." + this.delimiter + this.user_data_dir_name;
@@ -108,6 +119,41 @@ class UserDataModel{
 			currnt_file_data =  {message: err, error: true, data:{}};
 		}
 		return currnt_file_data;
+	}
+
+	copyAssetFile(src, dest) {
+		if(this.isFileExist(src) && !this.isFileExist(dest)){
+			var copy_file_stats;
+			try{
+				let readStream = this.fs.createReadStream(src);
+				readStream.once('error', (err) => {
+					return {error: true, message: err}
+				});
+				
+				readStream.once('end', () => {
+					console.log("done copying from" +src+ " to " + dest);
+				});
+				
+				readStream.pipe(this.fs.createWriteStream(dest));
+				var data = this.fs.readFileSync(src);
+
+				return {error: false, message: "done copying from" +src+ " to " + dest, data: probe.sync(data), size: data.length}
+				
+			}catch(err){
+				return {error: true, message: err}
+			}
+		}else{
+			return {error: true, message: "Either File does not exist in src folder or Destination has same file name.", data:{}}
+		}		
+	}
+	
+	deleteTmpAssetFile(src){
+		try{
+            this.fs.unlinkSync(src);
+            return {error:false, message: "Success: File Deleted."};
+        }catch(error){
+            return {error: true, message:error};
+        }
 	}
 
 	getUserDataRecords(asset_type, asset_file_prefix){

@@ -10,6 +10,7 @@ class ImageUserDataModel extends UserDataModel{
         this.asset_file_prefix = 'IMG-';
         this.comp_asset_file_prefix = 'COMP-';
         this.user = user;
+        this.temp_default_img_name = 'image.png'
         objMetaInfo = new metaInfo(this.curr_date_with_time,this.curr_date_and_time, this.curr_date_with_utc, this.user);
     }
 
@@ -24,6 +25,10 @@ class ImageUserDataModel extends UserDataModel{
             break;
             case 'jpeg':
                 extension = 'jpeg';
+            case 'gif':
+                extension = 'gif';
+            case 'jpg':
+                extension = 'jpg';    
             break;
         }
         return extension;
@@ -69,7 +74,7 @@ class ImageUserDataModel extends UserDataModel{
     */
 
     createImageAssetFolder(){
-        this.createAssetFolder(this.asset_folder_type);
+        return this.createAssetFolder(this.asset_folder_type);
     }
 
     /**** 
@@ -115,34 +120,52 @@ class ImageUserDataModel extends UserDataModel{
         this.createUserDataFolder(); // will create user data folder if not exist
         this.createCurrentDateFolder();
         this.createImageAssetFolder();
-        let img_meta_file = this.createImageMetaFile();
-        
-        //write data mechanism in file
-        let curr_date = this.curr_date;
-        let curr_date_time = this.curr_date_with_time;
-        let meta_file_id = this.asset_file_prefix + curr_date_time;
-        
-        let arg_obj = {
-            common_meta_data: img_data, 
-            asset_file_prefix: this.asset_file_prefix, 
-            path: this.getImageAssetPath(curr_date) + this.delimiter + img_data.name + '.' + this.getImageExtention(),
-        };
-
-        let image_data = objMetaInfo.writeMetaInfo(arg_obj)
-        image_data = Object.assign(image_data, objMetaInfo.imageWidtHeightInfo(arg_obj), objMetaInfo.compareImgMetaInfo(arg_obj),objMetaInfo.uploadMetaInfo(arg_obj));
-        
         let currnt_file_data;
-        if(!objMetaInfo.isEmpty(image_data)){
-            try {
-                this.fs.writeFileSync(img_meta_file,JSON.stringify(image_data));
-                currnt_file_data = this.readImageMetaFileData(img_meta_file);
-            }catch(err){
-                currnt_file_data =  {message: err, error: true, data:{}};
+        /***Copy Img Asset Folder From tmp and write into appropiate asset folder*/
+        try{
+            let img_copy_dest_path =  this.getImageAssetPath(this.curr_date) + this.delimiter + img_data.name + '.' + this.getImageExtention();
+            let img_source_path = this.getTmpDirPath() + this.delimiter + this.temp_default_img_name;
+            let img_copy_resp = this.copyAssetFile(img_source_path,img_copy_dest_path);
+
+            if(img_copy_resp.error){
+                currnt_file_data =  {message:img_copy_resp.message, error: true, data: img_data};
+            }else{
+                // need to delete image.png from tmp folder after copying
+                //this.deleteTmpAssetFile(img_source_path);
+
+                let img_meta_file = this.createImageMetaFile();
+                let curr_date = this.curr_date;
+                let curr_date_time = this.curr_date_with_time;
+                let meta_file_id = this.asset_file_prefix + curr_date_time;
+                
+                img_data.size = img_copy_resp.size;
+                
+                let arg_obj = {
+                    common_meta_data: img_data, 
+                    asset_file_prefix: this.asset_file_prefix, 
+                    path: this.getImageAssetPath(curr_date) + this.delimiter + img_data.name + '.' + this.getImageExtention(),
+                    compare_image_data: {id:"",name:"",type:"",size:"",width:"",height:"",extension:"",path:""}
+                };
+
+                let image_data = objMetaInfo.writeMetaInfo(arg_obj)
+                let arg_obj_img_dimension = {width: img_copy_resp.data.width, height: img_copy_resp.data.height}; 
+                image_data = Object.assign(image_data, objMetaInfo.imageWidtHeightInfo(arg_obj_img_dimension), objMetaInfo.compareImgMetaInfo(arg_obj),objMetaInfo.uploadMetaInfo(arg_obj));
+                
+                if(!objMetaInfo.isEmpty(image_data)){
+                    try {
+                        this.fs.writeFileSync(img_meta_file,JSON.stringify(image_data));
+                        currnt_file_data = this.readImageMetaFileData(img_meta_file);
+                    }catch(err){
+                        currnt_file_data =  {message: err, error: true, data:{}};
+                    }    
+                
+                }else{
+                    currnt_file_data = image_data;
+                }
             }    
-        
-        }else{
-            currnt_file_data = image_data;
-        }
+        }catch(err){
+            currnt_file_data =  {message: err, error: true, data:{}};
+        }    
         return currnt_file_data;
     }
 
@@ -178,8 +201,19 @@ class ImageUserDataModel extends UserDataModel{
     deleteImageMeta(meta_id){
         let path = this.getImgMetaPathFromMetaID(meta_id);
         try{
-            this.fs.unlinkSync(path);
-            return {status: 'success', message: ""};
+            let img_data = this.readImageMetaFileFromID(meta_id);
+            if(img_data.data.length != 0){
+                let file_name = img_data.data.name;
+                if(img_data.data.compare_img.path != "" && img_data.data.compare_img.path != undefined){
+                    this.fs.unlinkSync(img_data.data.compare_img.path);
+                }
+                this.fs.unlinkSync(img_data.data.path);
+                this.fs.unlinkSync(path);
+                return {status: 'Success', message: "Sucessfully deleted - " + file_name + ' from - '+ img_data.data.path};
+            }else{
+                return {status: 'Warning', message: "No file exist for deletion " + file_name + ' from - '+ img_data.data.path};
+            }
+            
         }catch(error){
             return {status: 'error', message:error};
         }
@@ -187,7 +221,7 @@ class ImageUserDataModel extends UserDataModel{
     }
 
     getUserDataImageRecords(){
-       return this.getUserDataRecords(this.asset_folder_type, this.asset_file_prefix)
+       return this.getUserDataRecords(this.asset_folder_type, this.asset_file_prefix);
     }
 
 }

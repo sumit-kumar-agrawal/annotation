@@ -7,6 +7,10 @@
     },
     "dependencies": {
         "empty-dir": "^0.2.1",
-        "fabric": "^2.0.0-beta.6"
+        "fabric": "^2.0.0-beta.6",
+        "image-size": "^0.6.1",
+        "imageinfo": "^1.0.4",
+        "probe-image-size": "^3.1.0",
+        "quickly-copy-file": "^1.0.0"
     }
 }
