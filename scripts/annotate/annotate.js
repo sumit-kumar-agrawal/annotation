@@ -1,6 +1,6 @@
 //let fabric = require('/Projects/annotations/node_modules/fabric/dist/fabric.require').fabric;
 var isDown, shape;
-var state, undo = [], redo = [], moveMode = true;;
+var state, undo = [], redo = [], moveMode = true, maxStrokeWidth = 5;
 var minX, minY, maxX, maxY;
 var annotate = {
 	canvas: null,
@@ -42,6 +42,9 @@ annotate.ready = function () {
 		this.updateModifications();
 	});
 
+	for (i = 2; i <= maxStrokeWidth; i++) {
+		$('#stroke-width-selector').append($("<option></option>").attr("value", i).text(i));
+	}
 };
 
 annotate.initialize = function (annotationType) {
@@ -254,3 +257,18 @@ annotate.checkscale = function (e) {
 		obj.lastScaleY = obj.scaleY
 	}
 }
+
+
+annotate.setColor = function (e) {
+	if (e.id == 'stroke-color-picker')
+		annotate.properties.strokeColor = e.value;
+	else if (e.id == 'fill-color-picker')
+		annotate.properties.fillColor = e.value;
+
+	annotate.resetShapePopertise(annotate.properties);
+};
+
+annotate.setStrokeWidth = function (e) {
+	annotate.properties.strokeWidth = e.value;
+	annotate.resetShapePopertise(annotate.properties);
+};
