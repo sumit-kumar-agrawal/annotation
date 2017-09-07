@@ -55,14 +55,14 @@ annotate.ready = function () {
 		//this.setObjectProperties();
 		var pointer = this.canvas.getPointer(o.e);
 		let shapeObj = this.getShapeObj();
-		if (shapeObj != 'undefined') {
+		if (shapeObj != undefined) {
 			shapeObj.init({ pointer: pointer });
 			shape = shapeObj.addShape();
 			this.addShapeInCanvas();
 			// this.updateModifications(true);
 
 		} else {
-			// console.log('Error: shape object could not found.');
+			console.log('Error: shape object could not found.');
 		}
 
 	});
@@ -73,7 +73,8 @@ annotate.ready = function () {
 		//this.setObjectProperties();
 		let pointer = this.canvas.getPointer(o.e);
 		let shapeObj = this.getShapeObj();
-		if (shapeObj != 'undefined') {
+		// console.log(shapeObj);
+		if (shapeObj != undefined) {
 			shapeObj.setCordinate(pointer, this.canvas);
 			this.canvas.renderAll();
 		} else {
@@ -89,19 +90,19 @@ annotate.ready = function () {
 
 	});
 
-	this.canvas.on('object:selected', function () {
-		moveMode = false;
-	});
+	// this.canvas.on('object:selected', function () {
+	// 	moveMode = false;
+	// });
 
-	this.canvas.on('selection:cleared', function () {
-		moveMode = true;
-	});
+	// this.canvas.on('selection:cleared', function () {
+	// 	moveMode = true;
+	// });
 
-	this.canvas.on('mouse:over', (opts) => {
-		var selectedObj = opts.target;
-		if (!selectedObj || selectedObj.type == 'image') return;
-		selectedObj.selectable = true;
-	});
+	// this.canvas.on('mouse:over', (opts) => {
+	// 	var selectedObj = opts.target;
+	// 	if (!selectedObj || selectedObj.type == 'image') return;
+	// 	selectedObj.selectable = true;
+	// });
 
 	this.canvas.observe("object:moving", annotate.checkmove);
 	//this.canvas.observe("object:scaling", annotate.checkscale);
@@ -122,9 +123,10 @@ annotate.set = function (object) {
 };
 
 annotate.setCanvasProperties = function () {
-	//this.canvas.isDrawingMode = true;
-	//this.canvas.freeDrawingBrush.width = 15
-	//this.canvas.freeDrawingBrush.color = e.target.value;
+	this.canvas.isDrawingMode = true;
+	this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
+	this.canvas.freeDrawingBrush.color = annotate.properties.strokeColor;
+	this.canvas.freeDrawingBrush.width = parseInt(annotate.properties.strokeWidth, 10) || 1;
 }
 annotate.drawShape = function () {
 	if (this.current == 'clear') {
@@ -151,6 +153,8 @@ annotate.setObjectProperties = function () {
 }
 annotate.getShapeObj = function () {
 	var shapeObj;
+	this.current = (this.current) ? this.current : 'pencil';
+	console.log(this.current);
 	if (this.current == 'rectangle') {
 		shapeObj = rect;
 	} else if (this.current == 'circle') {
@@ -182,11 +186,7 @@ annotate.addShapeInCanvas = function () {
 
 annotate.checkDrawingMode = function () {
 	if (this.current == 'pencil') {
-		this.canvas.isDrawingMode = true;
-		///////////////////
-		this.canvas.freeDrawingBrush = new fabric.PencilBrush(this.canvas);
-		this.canvas.freeDrawingBrush.color = annotate.properties.strokeColor;
-		this.canvas.freeDrawingBrush.width = parseInt(annotate.properties.strokeWidth, 10) || 1;
+		this.setCanvasProperties();
 	} else {
 		this.canvas.isDrawingMode = false;
 	}
