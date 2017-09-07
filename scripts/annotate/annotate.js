@@ -1,6 +1,6 @@
 //let fabric = require('/Projects/annotations/node_modules/fabric/dist/fabric.require').fabric;
 var isDown, shape;
-var state, undo = [], redo = [], moveMode = true, maxStrokeWidth = 5;
+var state, undo = [], redo = [], moveMode = true, maxStrokeWidth = 5, FIRST_TIME = true;
 var minX, minY, maxX, maxY;
 var annotate = {
 	canvas: null,
@@ -39,7 +39,7 @@ annotate.ready = function () {
 
 	this.updateModifications();
 	this.canvas.observe('object:modified', () => {
-		this.updateModifications();
+		// this.updateModifications();
 	});
 
 
@@ -85,24 +85,24 @@ annotate.ready = function () {
 	this.canvas.on('mouse:up', o => {
 		// console.log('mouse up...');
 		isDown = false;
-		annotate.addShapeInCanvas();
+		// annotate.addShapeInCanvas();
 		this.updateModifications();
 
 	});
 
-	// this.canvas.on('object:selected', function () {
-	// 	moveMode = false;
-	// });
+	this.canvas.on('object:selected', function () {
+		moveMode = false;
+	});
 
-	// this.canvas.on('selection:cleared', function () {
-	// 	moveMode = true;
-	// });
+	this.canvas.on('selection:cleared', function () {
+		moveMode = true;
+	});
 
-	// this.canvas.on('mouse:over', (opts) => {
-	// 	var selectedObj = opts.target;
-	// 	if (!selectedObj || selectedObj.type == 'image') return;
-	// 	selectedObj.selectable = true;
-	// });
+	this.canvas.on('mouse:over', (opts) => {
+		var selectedObj = opts.target;
+		if (!selectedObj || selectedObj.type == 'image') return;
+		selectedObj.selectable = true;
+	});
 
 	this.canvas.observe("object:moving", annotate.checkmove);
 	//this.canvas.observe("object:scaling", annotate.checkscale);
@@ -154,7 +154,6 @@ annotate.setObjectProperties = function () {
 annotate.getShapeObj = function () {
 	var shapeObj;
 	this.current = (this.current) ? this.current : 'pencil';
-	console.log(this.current);
 	if (this.current == 'rectangle') {
 		shapeObj = rect;
 	} else if (this.current == 'circle') {
@@ -206,7 +205,6 @@ annotate.resetShapePopertise = function (propObj) {
 
 annotate.updateModifications = function () {
 	// redo = [];
-	// console.log('update modification')
 	$('#redo').prop('disabled', true);
 	// initial call won't have a state
 	if (state) {
