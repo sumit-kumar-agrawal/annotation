@@ -29,6 +29,8 @@
         <label>stroke width</label> <select id="stroke-width-selector" onchange="javascript:annotate.setStrokeWidth(this)">
             <option value="1" selected="selected">1</option>
         </select>
+        <button id="enter-crop" onclick="javascript:annotate.crop(this.id)">enter crop</button>
+        <button id="crop" style="display:none" onclick="javascript:annotate.crop(this.id)">now crop</button>
 
     </div>
     <div class="container">

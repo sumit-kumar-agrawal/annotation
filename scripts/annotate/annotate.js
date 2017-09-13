@@ -5,6 +5,7 @@ var minX, minY, maxX, maxY;
 var annotate = {
 	canvas: null,
 	current: null,
+	select_rect: null,
 	properties: {
 		selectable: false,
 		fillColor: 'transparent',
@@ -31,6 +32,22 @@ annotate.ready = function () {
 		//stopContextMenu: true
 	});
 	this.canvas.add(image);
+	this.select_rect = new fabric.Rect({
+		left: 10,
+		top: 10,
+		fill: 'transparent',
+		originX: 'left',
+		originY: 'top',
+		stroke: '#ccc',
+		hasRotatingPoint: false,
+		strokeDashArray: [2, 2],
+		opacity: 1,
+		width: this.canvas.width - 10,
+		height: this.canvas.height - 10
+	});
+	this.select_rect.visible = false;
+
+	this.canvas.add(this.select_rect);
 
 	minX = image.oCoords.tl.x;
 	maxX = image.oCoords.br.x;
@@ -286,4 +303,51 @@ annotate.setColor = function (e) {
 annotate.setStrokeWidth = function (e) {
 	annotate.properties.strokeWidth = e.value;
 	annotate.resetShapePopertise(annotate.properties);
+};
+
+annotate.getSelectRectConfig = function () {
+	let config = {
+		width: 0,
+		height: 0
+	};
+	let rectCoords = this.select_rect.oCoords;
+	config.width = rectCoords.tr.x - rectCoords.tl.x;
+	config.height = rectCoords.bl.y - rectCoords.tl.y;
+	return config;
+};
+
+annotate.crop = function (btn) {
+	if (btn == 'enter-crop') {
+		this.select_rect.visible = true;
+		this.select_rect.selectable = true;
+		this.current = 'crop';
+		$('#enter-crop').hide();
+		$('#crop').show();
+		this.canvas.renderAll();
+		console.log(this.select_rect.width);
+		console.log(this.select_rect.height);
+	} else if (btn == 'crop') {
+		$('#enter-crop').show();
+		$('#crop').hide();
+		let configObj = this.getSelectRectConfig();
+		let scale = 1;
+		let x = this.select_rect.left;
+		let y = this.select_rect.top;
+
+		x *= 1 / scale;
+		y *= 1 / scale;
+
+		let width = configObj.width * 1 / scale;
+		let height = configObj.height * 1 / scale;
+
+		this.canvas.clipTo = function (ctx) {
+			ctx.rect(x, y, width, height);
+		}
+		console.log(this.select_rect.width);
+		console.log(this.select_rect.height);
+		console.log(this.select_rect.oCoords);
+		this.select_rect.visible = false;
+		this.select_rect.selectable = false;
+		this.canvas.renderAll();
+	}
 };
