@@ -1,0 +1,184 @@
+<!doctype html>
+
+<head>
+	<title>BUGSHOT</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel='stylesheet' href='../styles/css/annotationWindow.css' />
+	<link rel="stylesheet" type="text/css" href="../node_modules/jquery-ui-dist/jquery-ui.min.css">
+	<link href="../node_modules/evol-colorpicker/css/evol-colorpicker.css" rel="stylesheet" type="text/css">
+
+	<script src="../node_modules/fabric/dist/fabric.require.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="../node_modules/jquery-ui-dist/jquery-ui.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../node_modules/evol-colorpicker/js/evol-colorpicker.min.js" charset="utf-8"></script>
+
+	<script type="text/javascript">
+		var INCLUDE_BY_ENV = ['user_data'];
+	</script>
+
+	<script type="text/javascript" src="../scripts/bin/include_by_env.js" id="INCLUDE_BY_ENV"></script>
+	<script type="text/javascript" src="../scripts/annotation_tool/AnnotationTools.js"></script>
+	<script type="text/javascript" src="../scripts/annotationWindow.js"></script>
+	<script type="text/javascript" src="../scripts/utils/WindowNoDrag.js"></script>
+</head>
+
+<body>
+	<div class="wrapper">
+		<header>
+			<div class="toolBar">
+				<div class="mainTools tools">
+					<div class="tools2 tools">
+						<div class="toolsTop">
+							<a href="#" class="textLabel"><img src="../images/icons/Annotation-Screen/text.svg"/></a>
+							<select id="fontFamily" onchange="javascript:AnnotationTool.setFontFamily(this.value);">
+								<option value="Arial" selected="selected">Arial</option>
+								<option value="Courier New">Courier New</option>
+								<option value="Georgia">Georgia</option>
+								<option value="Tahoma">Tahoma</option>
+								<option value="Times New Roman">Times New Roman</option>
+								<option value="Verdana">Verdana</option>
+							</select>
+							<select id="fontSize" onchange="javascript:AnnotationTool.setFontSize(this.value);">
+								<option value="14" selected="selected">14</option>
+								<option value="15">15</option>
+								<option value="16">16</option>
+								<option value="17">17</option>
+								<option value="18">18</option>
+								<option value="19">19</option>
+								<option value="20">20</option>
+								<option value="20">20</option>
+								<option value="21">21</option>
+								<option value="22">22</option>
+								<option value="23">23</option>
+								<option value="24">24</option>
+							</select>
+							<a href="#" id='textbox' class="getcolor" title="Text" alt="Text">
+								<input type="image" src="../images/icons/Annotation-Screen/group-2.svg" id="text-color"/>
+							</a>
+						</div>
+
+						<div class="toolsBottom">
+							<a href="#" id='line' onclick="javascript:AnnotationTool.initialize(this.id);"><img src="../images/icons/Annotation-Screen/line.svg"/></a>
+							<a href="#" id='arrow' onclick="javascript:AnnotationTool.initialize(this.id);"><img src="../images/icons/Annotation-Screen/group-4_2.svg"/></a>
+							<a href="#" id='circle' onclick="javascript:AnnotationTool.initialize(this.id);"><img src="../images/icons/Annotation-Screen/oval.svg"/></a>
+							<a href="#" id='rectangle' onclick="javascript:AnnotationTool.initialize(this.id);"><img src="../images/icons/Annotation-Screen/rectangle-5.svg"/></a>
+							<a href="#" id='fill' class="getcolor" title="Fill Color" alt="Fill Color">
+								<input type="image" src="../images/icons/Annotation-Screen/group-20.svg" id="fill-color"/>
+							</a>
+							<a href="#" id='pencil' class="getcolor" title="Pencil" alt="Pencil">
+								<input type="image" src="../images/icons/Annotation-Screen/group-19.svg" id="pencil-color"/>
+								<label class="pencil-color-label"></label>
+							</a>
+							<a href="#" id='highlighter' class="getcolor" title="Hightlighter" alt="Highlighter">
+								<input type="image" src="../images/icons/Annotation-Screen/highlighter.svg" id="highlighter-color" />
+								<label class="pencil-color-label"></label>
+							</a>
+						</div>
+					</div>
+					<div class="tools3 tools">
+						<div class="toolsTop">
+							<a href="#" id="forward" onclick="javascript:AnnotationTool.bringToForwads();"><img src="../images/icons/Annotation-Screen/group-5.svg" alt="Send Forwards" title="Send Forwards"/></a>
+							<a href="#" id="backward" onclick="javascript:AnnotationTool.sendToBackwards();"><img src="../images/icons/Annotation-Screen/group-4.svg" alt="Send Backwards" title="Send Backwards"/></a>
+							<a href="#"><img src="../images/icons/Annotation-Screen/group-11.svg"/></a>
+							<a href="#"><img src="../images/icons/Annotation-Screen/hold.svg"/></a>
+							<a href="#"><img src="../images/icons/Annotation-Screen/shape.svg"/></a>
+							<a href="#"><img src="../images/icons/Annotation-Screen/group-13.svg"/></a>
+						</div>
+
+						<div class="toolsBottom">
+							<a href="#" onclick="javascript:AnnotationTool.enterCropMode();" id="crop-anchor"><img src="../images/icons/Annotation-Screen/group-23.svg" alt="Crop" title="Crop"/></a>
+							<a href="#" id="redo" onclick="javascript:AnnotationTool.redo1();"><img src="../images/icons/Annotation-Screen/icon-1.svg" title="Redo" alt="Redo"/></a>
+							<a href="#" id="undo" onclick="javascript:AnnotationTool.undo1();"><img src="../images/icons/Annotation-Screen/undo.svg" title="Undo" alt="Undo"/></a>
+							<a href="#" id="blur" onclick="javascript:AnnotationTool.initialize(this.id);"><img src="../images/icons/Annotation-Screen/blur-option.svg" title="Blur" alt="blur"/></a>
+							<a href="#" id="reset" onclick="javascript:AnnotationTool.initialize(this.id);"><img src="../images/icons/Annotation-Screen/computer-mouse-cursor.svg" alt="Reset" title="Reset"/></a>
+						</div>
+					</div>
+
+				</div>
+				<div class="stepsNav tools">
+					<ul>
+						<li>
+							<span class="circleText tick"><img src="../images/icons/Annotation-Screen/tick.jpg"/></span>
+							<span class="outsideText">Find Bug</span>
+							<span class="joinLine green"></span>
+						</li>
+						<li>
+							<span class="circleText tick"><img src="../images/icons/Annotation-Screen/tick.jpg"/></span>
+							<span class="outsideText">Capture</span>
+							<span class="joinLine green"></span>
+						</li>
+						<li>
+							<span class="circleText active">3</span>
+							<span class="outsideText">Annotate</span>
+							<span class="joinLine"></span>
+						</li>
+						<li class="disabled">
+							<span class="circleText preview-wizard">4</span>
+							<span class="outsideText">Preview</span>
+							<span class="joinLine"></span>
+						</li>
+						<li class="disabled last">
+							<span class="circleText login-wizard">5</span>
+							<span class="outsideText last">Login & Share</span>
+						</li>
+
+
+					</ul>
+
+				</div>
+				<div class="utility-tools">
+					<div class="apply-crop" onclick="javascript:AnnotationTool.cancelCrop(this.id);" id="cancel-crop-btn">
+						<span><img src="../images/icons/Annotation-Screen/group-23.svg"><br>Cancel</span>
+					</div>
+					<div class="apply-crop" onclick="javascript:AnnotationTool.crop();" id="crop-btn">
+						<span><img src="../images/icons/Annotation-Screen/group-23.svg"><br>Crop</span>
+					</div>
+					<div class="compare print" onclick="Annotation.annotationCompare()">
+						<span><img src="../images/icons/Annotation-Screen/group-10.svg"><br>Compare</span>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<div class="error" style="display:none;border:1px solid">There is some issue.</div>
+		<div class="annotation_wrapper full_screen">
+			<div id="captured_screenshot_div" style="min-height:400px;">
+				<canvas id="selectionCanvas" class='image-canvas'></canvas>
+				<div style="clear:both;"></div>
+			</div>
+		</div>
+		<div class="compare_annotation_wrapper hidden onclick=annotationCompare()">
+			<div class="compare_close">
+				<img src="../images/icons/Annotation-Screen/close_compare.svg" onclick="Annotation.close_compare_screen()" />
+			</div>
+			<div class="drag_and_drop_section">
+				<img src="../images/icons/Annotation-Screen/drag_and_drop.svg" id="drag_and_drop_logo" /><br>
+				<div id="drag_text">Drag and drop document here to upload</div>
+				<div id="decorated_or">OR</div>
+			</div>
+			<div class="selct_file">
+				<button id="select_button" onclick="Annotation.select_file()">Select File</button>
+				<input type="file" id="file_select" class="hidden" onclick="Annotation.fileExlorer()" accept=".jpg, .jpeg, .png">
+			</div>
+		</div>
+
+		<div id="description_title">Description</div>
+		<div id="description_area">
+			<textarea id="annotate_description" rows="2" col="70" placeholder="Please add session description here..."></textarea>
+			<hr noshade>
+		</div>
+		<div id="annotation_footer">
+			<button id="next_button" onclick="Annotation.annotationToPreview()">Next</button>
+		</div>
+		<input type="hidden" name="canvas_image_file_path" value="./tmp/image.png" id="canvas_image_file_path" />
+	</div>
+</body>
+
+<script type="text/javascript" src="../scripts/annotation_tool/rectangle.js"></script>
+<script type="text/javascript" src="../scripts/annotation_tool/circle.js"></script>
+<script type="text/javascript" src="../scripts/annotation_tool/line.js"></script>
+<script type="text/javascript" src="../scripts/annotation_tool/arrow.js"></script>
+<script type="text/javascript" src="../scripts/annotation_tool/textbox.js"></script>
+<script type="text/javascript" src="../scripts/annotation_tool/blur.js"></script>
+
+</html>

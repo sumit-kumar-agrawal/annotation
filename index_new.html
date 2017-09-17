@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>index</title>
+    <link rel="stylesheet" type="text/css" href="./css/app.css" />
+    <script src="./vendor/jquery-1.2.6.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="./vendor/fabric1.5.min.js"></script>
+    <script type="text/javascript" src="./scripts/annotate/annotate_new.js"></script>
+    <!-- <script type="text/javascript" src="./scripts/user_data.js"></script> -->
+</head>
+
+<body>
+    <div class='tools'>
+        <button id='rectangle' onclick="javascript:annotate.initialize(this.id);">Rectangle</button>
+        <button id='Front' onclick="javascript:annotate.sendSelectedObjectToFront();"> FRONT </button>
+        <button id='Back' onclick="javascript:annotate.sendSelectedObjectBack()"> BACK </button>
+            
+        <label>stroke color</label> 
+        <input type="color" id="stroke-color-picker" value="#000000" onchange="javascript:annotate.setColor(this)" />
+        <label>fill color</label> 
+        <input type="color" id="fill-color-picker" value="#ffffff" onchange="javascript:annotate.setColor(this)"   />
+        <label>stroke width</label> <select id="stroke-width-selector" onchange="javascript:annotate.setStrokeWidth(this)">
+            <option value="1" selected="selected">1</option>
+        </select>
+
+    </div>
+    <div class="container">
+        <img id='baseImage' src="image.jpg" style="display:none;" />
+        <canvas id="imageCanvas" class='image-canvas'></canvas>
+        <div style="clear:both;"></div>
+    </div>
+
+    <script>
+        jQuery(document).ready(function ($) {
+            annotate.ready();
+        });
+    </script>
+    <script type="text/javascript" src="./scripts/annotate/rectangle.js"></script>
+   
+</body>
+
+</html>
